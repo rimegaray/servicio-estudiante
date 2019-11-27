@@ -1,5 +1,8 @@
 package com.everis.springboot.app.controllers;
 
+import java.util.Date;
+
+import org.bouncycastle.asn1.x509.sigi.PersonalData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.everis.springboot.app.models.documents.Person;
 import com.everis.springboot.app.models.documents.Student;
 import com.everis.springboot.app.models.service.StudentService;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,9 +35,21 @@ public class StudentController {
 		return service.findAllStudents();
 	}
 	
+	@HystrixCommand(fallbackMethod = "alterFindById")
 	@GetMapping("/{id}")
 	public Mono<Student> findById(@PathVariable String id){
 		return service.findByIdStudent(id);
+	}
+	
+	public Flux<Student> alterFindByDateRange(String dateIni, String dateEnd){
+		
+		Student st = new Student();
+		st.setFullName("No encontrado");
+		st.setDateOfBirth(new Date());
+		st.setGender("No encontrado");
+		st.setTypeDocument("No encontrado");
+		st.setNumberDocument("No encontrado");
+		return Flux.just(st);
 	}
 	
 	@PostMapping
@@ -84,6 +100,14 @@ public class StudentController {
 	@PutMapping("/addRelative/{id}/{nameMember}")
 	public Mono<Person> addRelative(@PathVariable String id, @PathVariable String nameMember){
 		return service.findByIdStudent(id).flatMap(s->service.addRelative(s.getId(), nameMember));
+	}
+	
+	@HystrixCommand(fallbackMethod = "alterFindByDateRange")
+	@GetMapping("/dateRange/{dateInit}/{dateEnd}")
+	public Flux<Student> findByDateRange(@PathVariable String dateInit, @PathVariable String dateEnd){
+		return service.findByDateRange(dateInit, dateEnd).flatMap(p->{
+			return service.findStudentByIdPerson(p.getId());
+		});
 	}
 	
 }

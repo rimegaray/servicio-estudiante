@@ -22,8 +22,12 @@ public interface StudentService {
 	
 	public Mono<Person> updatePerson(Person persona, String id);
 	
+	public Flux<Person> findByDateRange(String date1, String date2);
+	
 	
 
+	public Mono<Student> findStudentByIdPerson(String idPerson);
+	
 	public Flux<Student> findAllStudents();
 
 	public Mono<Student> findByIdStudent(String id);

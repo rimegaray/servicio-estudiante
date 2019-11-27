@@ -82,13 +82,31 @@ public class StudentServiceImpl implements StudentService{
 	
 	@Override
 	public Mono<Person> addRelative(String id, String nameMember){
+		
+		Map<String,String> mapa = new HashMap<>();
+		mapa.put("id", id);
+		mapa.put("nameMember", nameMember);
 		return client.put()
-				.uri("/addRelative/{id}/{nameMember}",Collections.singletonMap("id", id),Collections.singletonMap("nameMember", nameMember))
+				.uri("/addRelative/{id}/{nameMember}",mapa)
 				.accept(MediaType.APPLICATION_JSON_UTF8)
 				.retrieve()
 				.bodyToMono(Person.class);
 	}
 
+	@Override
+	public Flux<Person> findByDateRange(String dateInit, String dateEnd) {
+		
+		Map<String,String> mapa = new HashMap<>();
+		mapa.put("dateInit", dateInit);
+		mapa.put("dateEnd", dateEnd);
+		
+		return client.get()
+				.uri("/dateRange/{dateInit}/{dateEnd}",mapa)
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.retrieve()
+				.bodyToFlux(Person.class);
+	}
+	
 	@Override
 	public Flux<Student> findAllStudents() {
 		return studentDao.findAll();
@@ -120,5 +138,12 @@ public class StudentServiceImpl implements StudentService{
 			return studentDao.save(s);
 		});
 	}
+
+	@Override
+	public Mono<Student> findStudentByIdPerson(String idPerson) {
+		return studentDao.findAll().filter(s->s.getId().equals(idPerson)).next();
+	}
+
+	
 
 }

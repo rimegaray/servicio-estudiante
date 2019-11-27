@@ -10,6 +10,7 @@ public class Person {
 	private Date dateOfBirth;
 	private String typeDocument;
 	private String numberDocument;
+	
 
 	public String getId() {
 		return id;
