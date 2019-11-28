@@ -35,7 +35,7 @@ public class StudentController {
 		return service.findAllStudents();
 	}
 	
-	@HystrixCommand(fallbackMethod = "alterFindById")
+	
 	@GetMapping("/{id}")
 	public Mono<Student> findById(@PathVariable String id){
 		return service.findByIdStudent(id);
